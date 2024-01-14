@@ -1,0 +1,14 @@
+structure de la DB:
+ - logs
+ - urls_pending{
+        'url': 'https://quotes.toscrape.com/',
+    'scope': 'web',
+    'status': 'pending'
+ }
+ - urls_completed
+ - pages {
+    'url': 'https://quotes.toscrape.com/',
+    'last_date_completed': 'web',
+    'status': 'pending'
+ }
+ - balises
