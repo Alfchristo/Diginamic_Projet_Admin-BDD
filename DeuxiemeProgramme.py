@@ -6,10 +6,16 @@ from urllib.parse import urljoin
 
 # Connexion à la base de données MongoDB
 client = MongoClient('mongodb://localhost:27017/')
-database = client['projetseo']  # Remplacez 'votre_base_de_donnees' par le nom de votre base de données
+database = client['projetseo']
 
 # Sélection de la collection
 collection = database['urls']
+pending_urls_collection = database['pending_urls']
+
+new_document = {'url': 'https://quotes.toscrape.com/page/2/', 'scope': 'https://quotes.toscrape.com',
+                'status': 'pending'}
+result_url = pending_urls_collection.insert_one(new_document)
+
 
 # Document à insérer
 nouveau_document = {
@@ -33,16 +39,15 @@ def get_pending_url(db):
                                           {"$set": {"status": "processing"}},
                                           return_document=pymongo.ReturnDocument.BEFORE
                                           )
-
     if url_document:
         return url_document["url"]
     else:
         # Si aucune URL en attente n'est trouvée dans la collection 'urls', essayez depuis 'pending_urls'
+        pending_urls_collection = database['pending_urls']
         pending_url_document = pending_urls_collection.find_one_and_update({"status": "pending"},
-                                                                            {"$set": {"status": "processing"}},
-                                                                            return_document=pymongo.ReturnDocument.BEFORE
-                                                                            )
-
+                                                                           {"$set": {"status": "processing"}},
+                                                                           return_document=pymongo.ReturnDocument.BEFORE
+                                                                           )
         if pending_url_document:
             return pending_url_document["url"]
         else:
@@ -54,14 +59,20 @@ def set_url_completed(db, url):
     db.update_one({"url": url}, {"$set": {"status": "completed"}})
 
 
-# Ajoutez la création de la collection 'pending_urls' au début de votre script
-pending_urls_collection = database['pending_urls']
+def simple_scrape(db, base_url, url):
+    # Créer la collection 'pending_urls' si elle n'existe pas encore
+    pending_urls_collection = database['pending_urls']
 
-
-def simple_scrape(db, base_url,url):
     if url:
         # Make the URL absolute by combining it with the base URL
         absolute_url = urljoin(base_url, url)
+
+        # Check if the URL has been processed or is already in the pending_urls collection
+        if not collection.find_one({"url": url}) and not pending_urls_collection.find_one({"url": url}):
+            # Process the URL
+            simple_scrape(collection, 'https://quotes.toscrape.com', url_a_traiter)
+            # Mark the URL as completed in 'pending_urls'
+            set_url_completed(pending_urls_collection, url_a_traiter)
 
         # Récupérer le contenu de la page HTML
         print("Processing URL:", absolute_url)
@@ -91,9 +102,9 @@ def simple_scrape(db, base_url,url):
             new_links = [urljoin(absolute_url, link.get('href')) for link in link_tags if link.get('href')]
 
             for new_link in new_links:
-                # Vérifier si le lien n'est pas déjà en base de données
-                if not db.find_one({"url": new_link}):
-                    # Ajouter le lien à la collection 'pending_urls'
+                # Check if the link is not already in the 'pending_urls' collection
+                if not pending_urls_collection.find_one({"url": new_link}):
+                    # Add the link to the 'pending_urls' collection
                     pending_urls_collection.insert_one({"url": new_link, "status": "pending"})
 
             # Stocker les informations dans MongoDB
@@ -114,17 +125,22 @@ def simple_scrape(db, base_url,url):
         print("Aucune URL en attente de traitement.")
 
 
+simple_scrape(pending_urls_collection, 'https://quotes.toscrape.com', new_document['url'])
+
+# Mark the URL as completed
+set_url_completed(pending_urls_collection, new_document['url'])
 # Exemple d'utilisation
 while True:
     # Récupère une URL en attente de traitement depuis la base de données
     url_a_traiter = get_pending_url(collection)
 
     if url_a_traiter:
-        # Traite l'URL
-        simple_scrape(collection, 'https://quotes.toscrape.com',url_a_traiter)
-
-        # Marque l'URL comme traitée dans la base de données
-        set_url_completed(collection, url_a_traiter)
+        # Check if the URL has not been processed or is not in the main collection
+        if not collection.find_one({"url": url_a_traiter}):
+            # Process the URL
+            simple_scrape(collection, 'https://quotes.toscrape.com', url_a_traiter)
+            # Mark the URL as completed in 'pending_urls'
+            set_url_completed(pending_urls_collection, url_a_traiter)
     else:
         # Si aucune URL en attente n'est trouvée, sort de la boucle
         break
