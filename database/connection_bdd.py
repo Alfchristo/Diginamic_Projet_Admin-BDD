@@ -1,3 +1,4 @@
+import pymongo
 from pymongo import MongoClient
 
 # Connexion à la base de données MongoDB
@@ -14,7 +15,6 @@ new_document = {'url': 'https://quotes.toscrape.com/page/2/', 'scope': 'https://
                 'status': 'pending'}
 result_url = url_en_attente.insert_one(new_document)
 
-
 # Document à insérer
 nouveau_document = {
     'url': 'https://quotes.toscrape.com/page/2/',
@@ -30,3 +30,6 @@ if result.inserted_id:
     print(f"Document inséré avec succès. ID: {result.inserted_id}")
 else:
     print("Échec de l'insertion du document.")
+
+# Ajout d'index
+collection.create_index([("url", pymongo.ASCENDING)])
