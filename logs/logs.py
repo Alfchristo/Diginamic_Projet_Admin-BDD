@@ -1,17 +1,17 @@
 import time
 from pymongo import MongoClient
 
-# Connect to the MongoDB database (adjust the connection string as needed)
+# Se connecter à la base de données MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 database = client['projetseo']
 logs_collection = database['logs']
 
 
 def log_event(message):
-    # Insert an event log into the 'logs' collection
+    # Insertion d'un journal d'événement dans la collection 'logs'
     logs_collection.insert_one({"type": "event", "timestamp": time.time(), "message": message})
 
 
 def log_error(url, error_message):
-    # Insert an error log into the 'logs' collection
+    # Insérer un journal d'erreur dans la collection 'logs'
     logs_collection.insert_one({"type": "error", "timestamp": time.time(), "url": url, "message": error_message})

@@ -8,10 +8,11 @@ database = client['projetseo']
 # Sélection de la collection
 collection = database['urls']
 url_en_attente = database['urls_en_attente']
-# Create or get the 'pages' collection
+
+# Création collection 'pages_metadata' pour stocker le contenu html, balises..Etc
 pages_metadata = database['pages_metadata']
 
-new_document = {'url': 'https://quotes.toscrape.com/page/2/', 'scope': 'https://quotes.toscrape.com',
+new_document = {'url': '/page/2/', 'scope': 'https://quotes.toscrape.com',
                 'status': 'pending'}
 result_url = url_en_attente.insert_one(new_document)
 
