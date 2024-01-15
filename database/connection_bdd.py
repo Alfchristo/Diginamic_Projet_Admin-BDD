@@ -1,8 +1,4 @@
-import pymongo
 from pymongo import MongoClient
-from bs4 import BeautifulSoup
-import requests
-from urllib.parse import urljoin
 
 # Connexion à la base de données MongoDB
 client = MongoClient('mongodb://localhost:27017/')
@@ -10,11 +6,13 @@ database = client['projetseo']
 
 # Sélection de la collection
 collection = database['urls']
-pending_urls_collection = database['pending_urls']
+url_en_attente = database['urls_en_attente']
+# Create or get the 'pages' collection
+pages_metadata = database['pages_metadata']
 
 new_document = {'url': 'https://quotes.toscrape.com/page/2/', 'scope': 'https://quotes.toscrape.com',
                 'status': 'pending'}
-result_url = pending_urls_collection.insert_one(new_document)
+result_url = url_en_attente.insert_one(new_document)
 
 
 # Document à insérer

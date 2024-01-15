@@ -1,14 +1,14 @@
 import time
 from requests.exceptions import RequestException
 from multiprocessing import Process
-from database.connection_bdd import pending_urls_collection, collection
+from database.connection_bdd import url_en_attente, collection
 from logs.logs import log_error, log_event
 from scraper.scraper_simple import get_pending_url, simple_scrape, set_url_completed
 
 
 def add_initial_url(url, scope):
     new_document = {'url': url, 'scope': scope, 'status': 'pending'}
-    pending_urls_collection.insert_one(new_document)
+    url_en_attente.insert_one(new_document)
 
 
 # Ajouter l'URL initiale
@@ -21,7 +21,7 @@ def distributed_scraper(base_url, process_id):
 
     while True:
         # Récupère une URL en attente de traitement depuis la base de données
-        url_a_traiter = get_pending_url(pending_urls_collection)
+        url_a_traiter = get_pending_url(url_en_attente)
 
         if url_a_traiter:
             # Check if the URL has not been processed or is not in the main collection
@@ -33,7 +33,7 @@ def distributed_scraper(base_url, process_id):
                         # Process the URL
                         simple_scrape(collection, base_url, url_a_traiter)
                         # Mark the URL as completed in 'pending_urls'
-                        set_url_completed(pending_urls_collection, url_a_traiter)
+                        set_url_completed(url_en_attente, url_a_traiter)
                         break  # Break out of the retry loop if successful
                     except RequestException as e:
                         # Handle request-related exceptions (e.g., network issues, timeouts)
@@ -45,13 +45,13 @@ def distributed_scraper(base_url, process_id):
                         # Handle other exceptions
                         log_error(url_a_traiter, f"Unexpected error: {e}")
                         # Mark the URL as completed to avoid repeated attempts
-                        set_url_completed(pending_urls_collection, url_a_traiter)
+                        set_url_completed(url_en_attente, url_a_traiter)
                         break  # Break out of the retry loop
 
                 if retries == max_retries:
                     # If maximum retries reached, mark the URL as completed
                     log_event(f"Maximum retries reached for URL: {url_a_traiter}")
-                    set_url_completed(pending_urls_collection, url_a_traiter)
+                    set_url_completed(url_en_attente, url_a_traiter)
         else:
             # Si aucune URL en attente n'est trouvée, sort de la boucle
             break

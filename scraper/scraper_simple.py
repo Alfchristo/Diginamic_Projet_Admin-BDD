@@ -2,7 +2,7 @@ import pymongo
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urljoin
-from database.connection_bdd import collection, pending_urls_collection, new_document, database
+from database.connection_bdd import collection, url_en_attente, new_document, database, pages_metadata
 from logs.logs import log_event, log_error
 
 
@@ -85,7 +85,7 @@ def simple_scrape(db, base_url, url):
                     pending_urls_collection.insert_one({"url": new_link, "status": "pending"})
 
             # Stocker les informations dans MongoDB
-            scraped_document = {
+            document_metadata = {
                 "url": url, "html": response.text,
                 "title": title_tag,
                 "header_tags": header_tags,
@@ -94,7 +94,8 @@ def simple_scrape(db, base_url, url):
                 "links": links
             }
 
-            db.insert_one(scraped_document)
+            # Insert the scraped document into the 'pages' collection
+            pages_metadata.insert_one(document_metadata)
             log_event(f"URL {url} scraped successfully.")
             print("Informations extraites et stockées dans la base de données.")
         else:
@@ -104,10 +105,10 @@ def simple_scrape(db, base_url, url):
         print("Aucune URL en attente de traitement.")
 
 
-simple_scrape(pending_urls_collection, 'https://quotes.toscrape.com', new_document['url'])
+simple_scrape(url_en_attente, 'https://quotes.toscrape.com', new_document['url'])
 
 # Mark the URL as completed
-set_url_completed(pending_urls_collection, new_document['url'])
+set_url_completed(url_en_attente, new_document['url'])
 # Exemple d'utilisation
 while True:
     # Récupère une URL en attente de traitement depuis la base de données
@@ -119,7 +120,7 @@ while True:
             # Process the URL
             simple_scrape(collection, 'https://quotes.toscrape.com', url_a_traiter)
             # Mark the URL as completed in 'pending_urls'
-            set_url_completed(pending_urls_collection, url_a_traiter)
+            set_url_completed(url_en_attente, url_a_traiter)
     else:
         # Si aucune URL en attente n'est trouvée, sort de la boucle
         break
