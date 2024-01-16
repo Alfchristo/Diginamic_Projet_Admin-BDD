@@ -3,7 +3,6 @@ import pymongo
 import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
-
 from logs.logs import log_error, log_event
 
 # Connexion à la base de données MongoDB
@@ -92,19 +91,5 @@ def simple_scrape(db, url):
     else:
         log_error(get_pending_url(db), f"Failed to retrieve page. Status code: {response.status_code}")
         print(f"Échec de la récupération de la page. Code d'état : {response.status_code}")
-
-# Exemple d'utilisation
-while True:
-    # Récupère une URL en attente de traitement depuis la base de données
-    url_a_traiter = get_pending_url(database['urls'])
-
-    if url_a_traiter:
-        # Process the URL
-        simple_scrape(database, url_a_traiter)
-        # Mark the URL as completed in 'pending_urls'
-        set_url_completed(database['urls'], url_a_traiter)
-    else:
-        # Si aucune URL en attente n'est trouvée, sort de la boucle
-        break
 
 

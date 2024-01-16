@@ -1,4 +1,4 @@
-from scraper.nouveau_scraper import insert_url, database, simple_scrape, get_pending_url, set_url_completed
+from scraper.programme_scraper import insert_url, database, simple_scrape, get_pending_url, set_url_completed
 
 insert_url(database["urls"], 'https://quotes.toscrape.com/page/2/', 'https://quotes.toscrape.com', 'pending')
 while True:

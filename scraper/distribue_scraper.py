@@ -3,7 +3,7 @@ from requests.exceptions import RequestException
 from multiprocessing import Process
 from database.connection_bdd import url_en_attente, collection
 from logs.logs import log_error, log_event
-from scraper.nouveau_scraper import database
+from scraper.programme_scraper import database
 from scraper.scraper_simple import get_pending_url, simple_scrape, set_url_completed
 
 def distributed_scraper(base_url, process_id):
