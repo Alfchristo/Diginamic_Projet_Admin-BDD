@@ -43,5 +43,6 @@ if __name__ == "__main__":
     # If arguments are provided, insert the URL into the database
     if args.url and args.scope:
         insert_url(database, args.url, args.scope, args.status)
+
     else:
         print("Veuillez fournir au moins les arguments --url et --scope.")

@@ -93,8 +93,6 @@ def simple_scrape(db, url):
         log_error(get_pending_url(db), f"Failed to retrieve page. Status code: {response.status_code}")
         print(f"Échec de la récupération de la page. Code d'état : {response.status_code}")
 
-
-insert_url(database["urls"], 'https://quotes.toscrape.com/page/2/', 'https://quotes.toscrape.com', 'pending')
 # Exemple d'utilisation
 while True:
     # Récupère une URL en attente de traitement depuis la base de données
