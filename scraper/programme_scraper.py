@@ -43,7 +43,7 @@ def set_url_completed(db, url):
     db.update_one({"_id": url["_id"]}, {"$set": {"status": "completed"}})
 
 
-def simple_scrape(db, url):
+def simple_scrape(db, url, max_urls=10):  # On choisit 10 pour un retour rapide pour debugger
     response = requests.get(url['url'])
 
     # Vérifier si la requête a réussi (statut 200)
@@ -69,11 +69,21 @@ def simple_scrape(db, url):
         link_tags = soup.find_all('a')
         new_links = [urljoin(url['url'], link.get('href')) for link in link_tags if link.get('href')]
 
+        # On place un compte pour garder le nombre de url à scraper:
+        scraped_urls_count = 0
+
         for new_link in new_links:
             # Check if the link is not already in the 'pending_urls' collection
             if new_link.startswith(url['scope']) and not db['urls'].find_one({"url": new_link}):
                 # Add the link to the 'pending_urls' collection
                 db['urls'].insert_one({"url": new_link,"scope": url['scope'], "status": "pending"})
+
+                # Increment le compte
+            scraped_urls_count += 1
+
+            # Check if the maximum limit is reached
+            if scraped_urls_count >= max_urls:
+                break
 
 
         # Stocker les informations dans MongoDB

@@ -1,6 +1,9 @@
 from scraper.programme_scraper import insert_url, database, simple_scrape, get_pending_url, set_url_completed
 
-insert_url(database["urls"], 'https://quotes.toscrape.com/page/2/', 'https://quotes.toscrape.com', 'pending')
+# Veuil
+insert_url(database["urls"], 'https://www.lelibrepenseur.org/categorie/llp-theque/conferences/', 'https://www.lelibrepenseur.org', 'pending')
+
+# Une
 while True:
     # Récupère une URL en attente de traitement depuis la base de données
     url_a_traiter = get_pending_url(database['urls'])
