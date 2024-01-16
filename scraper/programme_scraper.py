@@ -1,3 +1,4 @@
+from datetime import datetime
 from urllib.parse import urljoin
 import pymongo
 import requests
@@ -80,6 +81,7 @@ def simple_scrape(db, url):
             "url": url['url'], "html": response.text,
             "title": title_tag,
             "header_tags": header_tags,
+            "scrapping_date": datetime.now(),
             "bold_tags": bold_tags,
             "italic_tags": italic_tags,
         }
