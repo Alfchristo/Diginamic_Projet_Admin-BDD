@@ -110,7 +110,7 @@ Les fonctions de journalisation sont définies dans scraper/logs.py. Mettez à j
 - **`message`** : chaîne de caractères (message du log)
 
 ### Collaborateurs
-Alfred Christopher
-Berrabah Fatima
-Cormerais Dorian
-Mougani Christ
+- Alfred Christopher
+- Berrabah Fatima
+- Cormerais Dorian
+- Mougani Christ
