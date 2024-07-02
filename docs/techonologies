@@ -1,8 +1,0 @@
-# Liste des dépendances Python
-pymongo
-requests
-beautifulsoup4
-time
-urljoin
-RequestException
-Process
