@@ -20,8 +20,8 @@ Ce projet est un scraper web conçu à des fins de SEO. Il vous permet de récup
 
 1. Clonez le dépôt :
     ```sh
-    git clone https://github.com/yourusername/seo-web-scraper.git
-    cd seo-web-scraper
+    git clone https://github.com/Diginamic-M09-Gr3/32123BC5-Admin-BDD.git
+    cd 32123BC5-Admin-BDD
     ```
 
 2. Installez les packages Python requis :
