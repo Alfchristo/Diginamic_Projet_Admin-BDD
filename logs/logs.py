@@ -3,7 +3,7 @@ from pymongo import MongoClient
 
 # Connexion à MongoDB pour les journaux
 client = MongoClient('mongodb://localhost:27017/')
-logs_collection = client['test']['logs']
+logs_collection = client['projetseo']['logs']
 
 def log_error(url, message):
     """

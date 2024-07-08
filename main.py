@@ -4,12 +4,13 @@ from scraper.database import urls_collection, database
 from scraper.scraper import get_pending_url, simple_scrape, set_url_completed
 from logs.logs import log_error, log_event
 
-def main(max_urls=10):
+def main(max_urls=10, progress_callback=None):
     """
     Fonction principale pour traiter les URLs en attente jusqu'à un maximum donné.
 
     Args:
     - max_urls (int): Nombre maximum d'URLs à traiter. Par défaut, 10.
+    - progress_callback (function, optional): Fonction de rappel pour mettre à jour la progression.
 
     Returns:
     - None
@@ -26,6 +27,8 @@ def main(max_urls=10):
             while retries < max_retries:
                 try:
                     processed_count = simple_scrape(database, url_doc, max_urls, processed_count)
+                    if progress_callback:
+                        progress_callback(1)  # Update the progress bar by 1
                     if processed_count >= max_urls:
                         break
                     set_url_completed(urls_collection, url_doc)
@@ -49,7 +52,7 @@ def main(max_urls=10):
             log_event("Aucune URL en attente trouvée. En attente...")
             time.sleep(10)  # Pause avant de vérifier les nouvelles URLs en attente
 
-        log_event(f"{processed_count}/{max_urls+1} URLs traitées jusqu'à présent.")
+        log_event(f"{processed_count}/{max_urls} URLs traitées jusqu'à présent.")
 
     log_event(f"Traitement terminé de {max_urls} URLs.")
 

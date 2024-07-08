@@ -1,5 +1,7 @@
 import argparse
 import logging
+import sys
+
 from colorama import Fore, Style, init
 from tqdm import tqdm
 
@@ -14,8 +16,7 @@ def setup_logging():
     """
     Configuration du système de logs.
     """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+    logging.basicConfig(level=logging.INFO, format=f'%(asctime)s - %(levelname)s - %(message)s', stream=sys.stderr)
 
 def add_url_command(url: str, scope: str) -> None:
     """
@@ -51,9 +52,9 @@ def scrape_command(max_urls: int) -> None:
     """
     try:
         with tqdm(total=max_urls, desc="Progression du scraping",
-                  bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}") as pbar:
-            scrape_main(max_urls=max_urls,
-                        progress_callback=pbar.update)  # Appeler la fonction principale de scraping avec mise à jour de la barre de progression
+                  bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
+                  leave=True, ncols=100) as pbar:
+            scrape_main(max_urls=max_urls, progress_callback=pbar.update)  # Pass the progress_callback to scrape_main
         logging.info(f"{Fore.GREEN}Scraping démarré avec max_urls={max_urls}.")
     except Exception as e:
         logging.error(f"{Fore.RED}Échec du démarrage du scraping : {e}")
